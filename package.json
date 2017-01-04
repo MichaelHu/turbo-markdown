@@ -1,0 +1,27 @@
+{
+  "name": "markdown-turbo",
+  "version": "0.9.0",
+  "description": "An enhanced markdown parser",
+  "main": "index.js",
+  "scripts": {
+    "test": "./bin/mt grammar.md"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MichaelHu/markdown-turbo.git"
+  },
+  "bin": {
+      "tm": "bin/tm"
+  },
+  "keywords": [
+    "markdown",
+    "parser",
+    "enhanced"
+  ],
+  "author": "MichaelHu",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MichaelHu/markdown-turbo/issues"
+  },
+  "homepage": "https://github.com/MichaelHu/markdown-turbo#readme"
+}

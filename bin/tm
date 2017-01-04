@@ -1,0 +1,31 @@
+#! /usr/bin/env node 
+
+var path = require( 'path' );
+var execFileSync = require( 'child_process' ).execFileSync;
+var args = process.argv;
+var platform = process.platform;
+var thisDir = __dirname;
+var rootDir = path.resolve( thisDir, '../' );
+var scriptPath = path.resolve( rootDir, './markdown-mac.sh' );
+var cmdPath = path.resolve( rootDir, 'mac', 'markdown' );
+
+var childArgs = [];
+// console.log( args );
+if ( args.length < 3 ) {
+    console.log( 'Usage: mt file [local]' );
+    return;
+}
+childArgs = childArgs.concat( args.slice( 2 ) ); 
+
+var result = execFileSync( 
+    scriptPath
+    , childArgs 
+    , {
+        env: {
+            MARKDOWN_TURBO_ROOT: rootDir
+            , MARKDOWN_TURBO_CMD: cmdPath 
+        }
+    }
+);
+
+console.log( result.toString() );

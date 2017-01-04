@@ -2,8 +2,8 @@
 
 TMPFILE=$1.__tmp__
 PREVIEWFILE=$1.preview.html
-MARKDOWNCMD=/Users/hudamin/projects/git/git-myscripts/markdown/bin/preview/mac/markdown
-ROOT=/Users/hudamin/projects/git/git-myscripts/markdown/bin/preview
+ROOT=$MARKDOWN_TURBO_ROOT
+MARKDOWNCMD=$MARKDOWN_TURBO_CMD
 TPL=tpl
 
 if [ "$2" == "local" ]; then

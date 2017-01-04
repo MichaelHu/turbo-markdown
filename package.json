@@ -1,5 +1,5 @@
 {
-  "name": "markdown-turbo",
+  "name": "turbo-markdown",
   "version": "0.9.0",
   "description": "An enhanced markdown parser",
   "main": "index.js",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MichaelHu/markdown-turbo.git"
+    "url": "git+https://github.com/MichaelHu/turbo-markdown.git"
   },
   "bin": {
       "tm": "bin/tm"
@@ -21,7 +21,7 @@
   "author": "MichaelHu",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/MichaelHu/markdown-turbo/issues"
+    "url": "https://github.com/MichaelHu/turbo-markdown/issues"
   },
-  "homepage": "https://github.com/MichaelHu/markdown-turbo#readme"
+  "homepage": "https://github.com/MichaelHu/turbo-markdown#readme"
 }

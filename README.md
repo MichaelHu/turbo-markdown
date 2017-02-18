@@ -10,6 +10,5 @@
 
 ## Usage
 
-    tm file
-    tm file local
+    tm <file> [--local] [--no-preview]
 

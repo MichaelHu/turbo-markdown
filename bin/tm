@@ -12,7 +12,7 @@ var cmdPath = path.resolve( rootDir, 'mac', 'markdown' );
 var childArgs = [];
 // console.log( args );
 if ( args.length < 3 ) {
-    console.log( 'Usage: mt file [local]' );
+    console.log( 'Usage: tm file [local]' );
     return;
 }
 childArgs = childArgs.concat( args.slice( 2 ) ); 

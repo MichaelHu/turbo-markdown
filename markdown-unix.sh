@@ -1,7 +1,7 @@
 #!/bin/bash
 
 TMPFILE=$1.__tmp__
-PREVIEWFILE=$1.preview.html
+PREVIEWFILE=$1.html
 MARKDOWNCMD=/Users/hudamin/projects/git/git-myscripts/markdown/bin/preview/unix/markdown
 ROOT=/Users/hudamin/projects/git/git-myscripts/markdown/bin/preview
 TPL=tpl

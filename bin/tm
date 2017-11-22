@@ -2,13 +2,21 @@
 
 var path = require( 'path' );
 var fs = require( 'fs' );
+var os = require( 'os' );
 var execFileSync = require( 'child_process' ).execFileSync;
 var args = process.argv;
 var platform = process.platform;
 var thisDir = __dirname;
 var rootDir = path.resolve( thisDir, '../' );
 var scriptPath = path.resolve( rootDir, './markdown-mac.sh' );
-var cmdPath = path.resolve( rootDir, 'mac', 'markdown' );
+var platform = os.platform();
+platform = platform == 'darwin' 
+    ? 'mac' 
+    : platform == 'win32' 
+        ? 'win'
+        : 'unix'
+    ;
+var cmdPath = path.resolve( rootDir, platform, 'markdown' );
 var childArgs = [];
 var confFilePath = path.resolve( rootDir, 'package.json' );
 var conf = fs.readFileSync( confFilePath, { encoding: 'utf-8' } );

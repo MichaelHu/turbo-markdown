@@ -7,6 +7,7 @@ files=(
     http://258i.com/docs/markdown_res/js/jquery-1.9.1.min.js
     http://258i.com/docs/markdown_res/bootstrap/js/bootstrap.min.js
     http://258i.com/docs/markdown_res/js/scrollspy.js
+    http://258i.com/docs/markdown_res/js/lazyload.min.js
     http://258i.com/docs/markdown_res/js/augment.js
 )
 
@@ -33,6 +34,7 @@ cat tpl-footer.tpl.html \
     | sed -e '/^\/\* --replace.*/G' \
     | sed -e '/^\/\* --replace bootstrap.min.js/r assets/bootstrap.min.js' \
     | sed -e '/^\/\* --replace scrollspy.js/r assets/scrollspy.js' \
+    | sed -e '/^\/\* --replace lazyload.min.js/r assets/lazyload.min.js' \
     | sed -e '/^\/\* --replace augment.js/r assets/augment.js' \
     > footer.tpl.html \
     2>/dev/null

@@ -2,9 +2,16 @@
 </html>
 <script type="text/javascript" src="http://258i.com/docs/markdown_res/bootstrap/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="http://258i.com/docs/markdown_res/js/scrollspy.js"></script>
+<script type="text/javascript" src="http://258i.com/docs/markdown_res/js/lazyload.min.js"></script>
 <script type="text/javascript" src="http://258i.com/docs/markdown_res/js/augment.js"></script>
 <script type="text/javascript">
-(function(){
-document.title = $('h1').html() || '无标题文档';    
-})();
+( function() {
+
+document.title = $('h1').html() || '无标题文档';
+$( '.lazy' ).lazyload( {
+    data_attribute: 'url'
+    // , effect : "fadeIn"
+} );
+
+} )();
 </script>

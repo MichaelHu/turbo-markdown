@@ -1,3 +1,40 @@
+<style type="text/css">
+.content-search {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 80%;
+    max-width: 520px;
+    margin-left: -260px;
+    padding: 10px 20px;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    background-color: #fff;
+    /* box-shadow: h-shadow v-shadow blur spread color inset; */
+    box-shadow: -3px -1px 3px #ccc;
+}
+@media screen and ( max-width: 600px ) {
+    .content-search {
+        margin-left: -40%;
+    }
+}
+.content-search__text {
+    width: 100%;
+    height: 46px;
+    box-shadow: none !important;
+    border-width: 0 0 2px 0;
+    border-radius: 0 !important;
+    font-size: 24px !important;
+    line-height: 32px !important;
+    text-align: center;
+}
+.content-search_highlight {
+    background-color: #ff0 !important;
+}
+.content-search_hide {
+    display: none !important;
+}
+</style>
 </body>
 </html>
 <script type="text/javascript" src="http://258i.com/docs/markdown_res/bootstrap/js/bootstrap.min.js"></script>
@@ -12,6 +49,308 @@ $( '.lazy' ).lazyload( {
     data_attribute: 'url'
     // , effect : "fadeIn"
 } );
+
+} )();
+</script>
+<script>
+// search
+( function() {
+
+var disableSearch = null; 
+
+$( document ).on( 'keydown', function( e ) {
+
+    var SLASH = 191, ESC = 27;
+    var keyCode = e.keyCode || e.which;
+    var tagName = e.target.tagName.toLowerCase();
+
+    if ( keyCode == SLASH ) {
+        console.log( 'SLASH keydown' );
+        if ( tagName != 'input'
+            && tagName != 'textarea' ) {
+            console.log( 'enableSearch' );
+            disableSearch = enableSearch();
+        }
+    }
+    else if ( keyCode == ESC ) {
+        console.log( 'ESC keydown' );
+        restore();
+    }
+
+});
+
+function enableSearch() {
+    var $body = $( document.body );
+    var $searchBar = $( '#content-search' );
+
+    if ( ! $searchBar.length ) {
+        $searchBar = $( 
+            '<div id="content-search" class="row content-search">'
+            + '<div class="col">'
+            + '<input class="form-control content-search__text" type="text">' 
+            + '</div>'
+            + '</div>'
+        );
+        $body.append( $searchBar );
+    }
+
+    var $searchInput = $searchBar.find( 'input' );
+    $searchBar.show().fadeIn();
+    setTimeout( function() { 
+        $searchInput
+            .val( '' )
+            .focus()
+            ; 
+    } );
+
+    $searchInput.on( 'keydown', function( e ) {
+        var RETURN = 13, keyCode = e.keyCode || e.which;
+        if ( keyCode == RETURN ) {
+            doSearch( this.value );
+
+            // bugfix for reopening the search bar
+            this.blur();
+
+            disableSearch && disableSearch();
+        }
+    } );
+
+    return disableSearch || function() {
+        $searchBar.fadeOut();
+        $searchInput.off( 'keydown' );
+    };
+}
+
+
+function escapeRegExp( text ) {
+    // <https://github.com/sindresorhus/escape-string-regexp>
+    if ( Object.prototype.toString.call( text ) != '[object String]' ) {
+        throw new Error( 'escapeRegExp(): text must be a string' );
+    }
+    return text.replace( /[|\\{}().^$[\]*+?]/g, '\\$&' );
+}
+
+function matchSelectors( node, selectors ) {
+    var isMatched = false;
+    var selector;
+    selectors = selectors || [];
+
+    if ( ! node ) { 
+        throw new Error( 'matchSelectors( node, selectors ): invalid argument - node' );
+    }
+
+    for ( var i = 0; i < selectors.length; i++ ) {
+        selector = selectors[ i ];
+        if ( /^#(.+)/.test( selector ) ) {
+            if ( node.id == RegExp.$1 ) {
+                isMatched = true;
+                break;
+            }
+        }
+        else if ( /^\.(.+)/.test( selector ) ) {
+            var className = RegExp.$1;
+            if ( node.className 
+                && node.className.split( /\s+/ ).indexOf( className ) >= 0 ) {
+                isMatched = true;
+                break;
+            } 
+        }
+        else if ( Object.prototype.toString.call( selector ) == '[object RegExp]' ) {
+            if ( node.tagName 
+                && selector.test( node.tagName ) ) {
+                isMatched = true;
+                break;
+            }
+        }
+        else {
+            if ( node.tagName 
+                && selector == node.tagName.toLowerCase() ) {
+                isMatched = true;
+                break;
+            }
+        }
+    } 
+
+    return isMatched;
+}
+
+function splitText( text, splitter ) {
+    // Note: modifier 'g' here will trigger a bug
+    // var reg = new RegExp( escapeRegExp( splitter ), 'ig' );
+    var reg = new RegExp( escapeRegExp( splitter ), 'i' );
+    var textArr = text.split( reg ); 
+    var keysArr = [], f, t, i, start, end, key, lastIndex = 0;
+
+    /**
+     * the way below has a bug:
+     *     text     splitter    textArr              keysArr 
+     *     ==========================================================
+     *     s        s        => [ "", "" ]           [ "" ]
+     *     ss       s        => [ "", "", "" ]       [ "", "" ]
+     *     as       s        => [ "a", "" ]          [ "" ]
+     *     asbs     s        => [ "a", "b", "" ]     [ "s", "" ]
+     */
+    // if ( textArr.length > 1 ) {
+    //     for ( i = 0; i < textArr.length - 1; i++ ) {
+    //         f = textArr[ i ];
+    //         t = textArr[ i + 1 ];
+    //         start = lastIndex + f.length;
+    //         end = text.indexOf( t, start );
+    //         keysArr.push( text.substring( start, end ) );
+    //         lastIndex = end;
+    //     }
+    // }
+
+    /**
+     * the bug-free way
+     */
+    if ( textArr.length > 1 ) {
+        var tmpText = text;
+        for ( i = 0; i < textArr.length - 1; i++ ) {
+            f = textArr[ i ];
+            start = f.length;
+            tmpText = tmpText.substring( start );
+            if ( ! reg.test( tmpText ) ) {
+                throw new Error( 'splitText( text, splitter ): an error occured' );
+            }
+            key = RegExp[ '$&' ];
+            keysArr.push( key );
+            tmpText = tmpText.substr( key.length );
+        }
+    }
+
+    return {
+        textArr: textArr
+        , keysArr: keysArr
+    };
+}
+
+
+function doSearch( text, options ) {
+    var opt = options || {};
+    var $root = $( document.body );
+    var styleClasses = {
+        hilight: 'content-search_highlight'
+        , hide: 'content-search_hide'
+    };
+    var hasMatched = false;
+
+    console.log( 'doSearch: ' + text );
+
+    opt.highlightExcludes = opt.highlightExcludes || [
+        '.content-search'
+        , /style|script|iframe|input|textarea/i
+    ];
+
+    opt.hideExcludes = opt.hideExcludes || [
+        '#navbar-auto'
+        , '.content-search'
+        , /style|script|iframe|input|textarea|h[1-7]/i
+    ];
+
+    preDepthTravel( $root[ 0 ], {
+        visit: function( node ) {
+            if ( matchSelectors( node, opt.highlightExcludes ) ) {
+                return -1;
+            }
+
+            if ( node.nodeType == 3 ) { 
+                var rawText = node.nodeValue;
+
+                var splitResult = splitText( rawText, text );
+                var textArr = splitResult.textArr;
+                // the original keywords
+                var keysArr = splitResult.keysArr;
+
+                var newNodes = [];
+                var parentNode = node.parentNode;
+                if ( textArr.length > 1 ) {
+                    hasMatched = true;
+                    for ( var i = 0; i < textArr.length; i++ ) {
+                        newNodes.push( document.createTextNode( textArr[ i ] ) );
+                        if ( i < textArr.length - 1 ) {
+                            var spanNode = document.createElement( 'span' );
+                            var innerTextNode = document.createTextNode( keysArr[ i ] );
+                            spanNode.appendChild( innerTextNode );
+                            spanNode.className = styleClasses.hilight;
+                            newNodes.push( spanNode );
+                        }
+                    }
+
+                    for( i = 0; i < newNodes.length; i++ ) {
+                        parentNode.insertBefore( newNodes[ i ], node );
+                    }
+
+                    parentNode.removeChild( node );
+                    return newNodes.length - 1;
+                }
+            }
+            return 0;
+        }
+    } );
+
+    // if no matched, we don't need to hide no-matched elements
+    if ( ! hasMatched ) {
+        return;
+    }
+
+    preDepthTravel( $root[ 0 ], {
+        visit: function( node ) {
+            if ( matchSelectors( node, opt.hideExcludes ) 
+                // #text nodes ignored
+                || node.nodeType == 3 ) {
+                return -1;
+            }
+
+            var $node = $( node );
+            var className = styleClasses.hilight;
+            if ( ! $node.find( '.' + className ).length 
+                && ! $node.hasClass( className )
+                ) {
+                // console.log( node.tagName + ', ' + node.nodeName );
+                $node.addClass( styleClasses.hide );
+                return -1;
+            }
+            return 0;
+        }
+    } );
+
+}
+
+function restore() {
+    console.log( 'restore' );
+}
+
+function defaultVisit( node ) {
+    console.log( 
+        node.nodeName 
+        + ' | ' + node.nodeValue 
+        + ' | ' +  node.tagName 
+    );
+}
+
+function preDepthTravel( node, options ) {
+    var opt = options || {};
+    var visit = opt.visit || defaultVisit;
+    var childNodes = node.childNodes;
+    var result = visit( node );
+
+    // if -1, no traverse descendants
+    if ( -1 == result ) {
+        return 0;
+    }
+
+    // if 0, childNodes no changed
+    // if more than 0, there are new child nodes added
+    for ( var i = 0; i < childNodes.length; i++ ) {
+        i += preDepthTravel( childNodes[ i ], opt ); 
+    }
+
+    return result;
+}
+
+
+
 
 } )();
 </script>

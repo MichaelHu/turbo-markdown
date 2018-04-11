@@ -115,8 +115,11 @@ var STATE_NORMAL = 1;
 var STATE_BEFORE_SEARCH = 2;
 var STATE_SEARCHING = 3;
 var STATE_AFTER_SEARCH = 4;
+
 var SELECTOR_PREFIX = '%:';
+var REGEXP_PREFIX = '%/';
 var SEARCH_TYPE_SELECTOR = 100;
+var SEARCH_TYPE_REGEXP = 101;
 
 var disableSearch = null; 
 var styleClasses = {
@@ -125,6 +128,7 @@ var styleClasses = {
     , hide: 'content-search_hide'
 };
 var regSelectorPrefix = new RegExp( '^' + escapeRegExp( SELECTOR_PREFIX ) + '(.*)' );
+var regRegExpPrefix = new RegExp( '^' + escapeRegExp( REGEXP_PREFIX ) + '(.*)' );
 
 var lastKeyIsG = false;
 var lastKeyIsSlash = false;
@@ -211,31 +215,27 @@ $( document ).on( 'keydown', function( e ) {
              // console.log( ' = do selector search' );
              prepareToSearch( { type: SEARCH_TYPE_SELECTOR } ); 
         }
-        else {
-             // console.log( ' = do content search' );
-             prepareToSearch();
+        else if ( ! lastKeyIsSlash ) {
+            // Slash-key state transformation
+            lastKeyIsSlash = true;
+
+            timerForSlash = setTimeout( function() {
+                console.log( ' = do content search' );
+
+                // Slash-key state transformation
+                lastKeyIsSlash = false;
+
+                prepareToSearch();
+            }, 300 );
+
+            // update state and leave
+            return;
         }
-        // else if ( ! lastKeyIsSlash ) {
-        //     // Slash-key state transformation
-        //     lastKeyIsSlash = true;
-
-        //     timerForSlash = setTimeout( function() {
-        //         console.log( ' = do content search' );
-
-        //         // Slash-key state transformation
-        //         lastKeyIsSlash = false;
-
-        //         prepareToSearch();
-        //     }, 300 );
-
-        //     // update state and leave
-        //     return;
-        // }
-        // else {
-        //     clearTimeout( timerForSlash );
-        //     console.log( ' = do selector search' );
-        //     prepareToSearch( { type: SEARCH_TYPE_SELECTOR } ); 
-        // }
+        else {
+            clearTimeout( timerForSlash );
+            console.log( ' = do regexp content search' );
+            prepareToSearch( { type: SEARCH_TYPE_REGEXP } ); 
+        }
     }
 
     // Slash-key state transformation
@@ -360,9 +360,12 @@ function enableSearch( options ) {
     var $searchInput = $searchBar.find( 'input' );
     $searchBar.show().fadeIn();
     setTimeout( function() { 
-        console.log( 'search type: ' + opt.type );
+        // console.log( 'search type: ' + opt.type );
         if ( opt.type == SEARCH_TYPE_SELECTOR ) {
             $searchInput.val( SELECTOR_PREFIX );
+        }
+        else if ( opt.type == SEARCH_TYPE_REGEXP ) {
+            $searchInput.val( REGEXP_PREFIX );
         }
         else {
             $searchInput.val( '' );
@@ -379,7 +382,7 @@ function enableSearch( options ) {
             // initialize search info
             updateSearchInfo();
 
-            var result = doSearch( this.value );
+            var result = doSearch( this.value, opt );
 
             // bugfix for reopening the search bar
             this.blur();
@@ -457,9 +460,19 @@ function matchSelectors( node, selectors ) {
 }
 
 function splitText( text, splitter, options ) {
-    // Note: modifier 'g' here will trigger a bug
-    // var reg = new RegExp( escapeRegExp( splitter ), 'ig' );
-    var reg = new RegExp( escapeRegExp( splitter ), 'i' );
+
+    var opt = options || {};
+    var reg;
+
+    if ( opt.type == SEARCH_TYPE_REGEXP ) {
+        reg = new RegExp( splitter, 'i' );
+    } 
+    else {
+        // Note: modifier 'g' here will trigger a bug
+        // var reg = new RegExp( escapeRegExp( splitter ), 'ig' );
+        reg = new RegExp( escapeRegExp( splitter ), 'i' );
+    }
+
     var textArr = text.split( reg ); 
     var keysArr = [], f, t, i, start, end, key, lastIndex = 0;
 
@@ -511,8 +524,7 @@ function splitText( text, splitter, options ) {
 function doSearch( text, options ) {
     var opt = options || {};
     var $root = $( document.body );
-    var searchResult, isSelector = false;
-    var hasMatched = false;
+    var searchResult;
 
     // console.log( 'doSearch: ' + text );
 
@@ -536,8 +548,10 @@ function doSearch( text, options ) {
 
     if ( regSelectorPrefix.test( text ) ) {
         text = RegExp.$1;
-        isSelector = true;
     } 
+    else if ( regRegExpPrefix.test( text ) ) {
+        text = RegExp.$1;
+    }
 
     // if empty keyword, stop go further
     if ( ! text.replace( /^\s+|\s+$/, '' ).length ) {
@@ -545,7 +559,7 @@ function doSearch( text, options ) {
     }
 
     // do search
-    if ( isSelector ) {
+    if ( opt.type == SEARCH_TYPE_SELECTOR ) {
         console.log( 'do selector search: ' + text );
         searchResult = doSelectorSearch( text, opt );
     } 
@@ -612,7 +626,7 @@ function doSelectorSearch( selector, options ) {
 }
 
 function doContentSearch( text, options ) {
-    var opt = options;
+    var opt = options || {};
     var $root = $( document.body );
     var hasMatched = false;
 

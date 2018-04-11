@@ -28,7 +28,8 @@
     line-height: 32px !important;
     text-align: center;
 }
-.content-search_highlight {
+.content-search_highlight, 
+.content-search_element-highlight {
     background-color: #ff0 !important;
 }
 .content-search_hide {
@@ -115,17 +116,21 @@ var STATE_BEFORE_SEARCH = 2;
 var STATE_SEARCHING = 3;
 var STATE_AFTER_SEARCH = 4;
 var SELECTOR_PREFIX = '%:';
+var SEARCH_TYPE_SELECTOR = 100;
 
 var disableSearch = null; 
 var styleClasses = {
-    hilight: 'content-search_highlight'
+    textHilight: 'content-search_highlight'
+    , elementHilight: 'content-search_element-highlight'
     , hide: 'content-search_hide'
 };
-var regSelectorPrefix = new RegExp( '^' + escapeRegExp( SELECTOR_PREFIX ) );
+var regSelectorPrefix = new RegExp( '^' + escapeRegExp( SELECTOR_PREFIX ) + '(.*)' );
 
-var currentResultIndex = 0;
-var searchState = STATE_NORMAL; 
 var lastKeyIsG = false;
+var lastKeyIsSlash = false;
+var timerForSlash;
+var searchState = STATE_NORMAL; 
+var currentResultIndex = 0;
 
 function setState( state ) {
     var isValidState = [ 
@@ -174,6 +179,8 @@ $( document ).on( 'keydown', function( e ) {
     if ( /input|textarea/i.test( tagName ) ) {
         // G-key state transformation
         lastKeyIsG = false;
+        // Slash-key state transformation
+        lastKeyIsSlash = false;
         return;
     }
 
@@ -200,21 +207,41 @@ $( document ).on( 'keydown', function( e ) {
     lastKeyIsG = false;
 
     if ( keyCode == SLASH ) {
-        disableSearch = enableSearch();
-        updateSearchInfo();
+        if ( e.shiftKey ) {
+             // console.log( ' = do selector search' );
+             prepareToSearch( { type: SEARCH_TYPE_SELECTOR } ); 
+        }
+        else {
+             // console.log( ' = do content search' );
+             prepareToSearch();
+        }
+        // else if ( ! lastKeyIsSlash ) {
+        //     // Slash-key state transformation
+        //     lastKeyIsSlash = true;
 
-        /**
-         * support searching again in last result,
-         * we restore the dom tree, but keep the hidden item still hidden
-         * , then the new searched result will not contain the hidden items
-         * of last search
-         */
-        restore( { keepHiddenItems: true } );
+        //     timerForSlash = setTimeout( function() {
+        //         console.log( ' = do content search' );
 
-        // state transformation
-        setState( STATE_BEFORE_SEARCH );
+        //         // Slash-key state transformation
+        //         lastKeyIsSlash = false;
+
+        //         prepareToSearch();
+        //     }, 300 );
+
+        //     // update state and leave
+        //     return;
+        // }
+        // else {
+        //     clearTimeout( timerForSlash );
+        //     console.log( ' = do selector search' );
+        //     prepareToSearch( { type: SEARCH_TYPE_SELECTOR } ); 
+        // }
     }
-    else if ( keyCode == J_KEY ) {
+
+    // Slash-key state transformation
+    lastKeyIsSlash = false;
+
+    if ( keyCode == J_KEY ) {
         scrollByLine();
     }
     else if ( keyCode == K_KEY ) {
@@ -296,7 +323,26 @@ function showSibling( node ) {
     }
 }
 
-function enableSearch() {
+function prepareToSearch( options ) {
+    var opt = options || {};
+
+    disableSearch = enableSearch( opt );
+    updateSearchInfo();
+
+    /**
+     * support searching again in last result,
+     * we restore the dom tree, but keep the hidden items hidden
+     * , then the new searched result will not contain the hidden items
+     * of last search
+     */
+    restore( { keepHiddenItems: true } );
+
+    // state transformation
+    setState( STATE_BEFORE_SEARCH );
+}
+
+function enableSearch( options ) {
+    var opt = options || {};
     var $body = $( document.body );
     var $searchBar = $( '#content-search' );
 
@@ -314,10 +360,14 @@ function enableSearch() {
     var $searchInput = $searchBar.find( 'input' );
     $searchBar.show().fadeIn();
     setTimeout( function() { 
-        $searchInput
-            .val( '' )
-            .focus()
-            ; 
+        console.log( 'search type: ' + opt.type );
+        if ( opt.type == SEARCH_TYPE_SELECTOR ) {
+            $searchInput.val( SELECTOR_PREFIX );
+        }
+        else {
+            $searchInput.val( '' );
+        }
+        $searchInput.focus(); 
     } );
 
     $searchInput.on( 'keydown', function( e ) {
@@ -406,7 +456,7 @@ function matchSelectors( node, selectors ) {
     return isMatched;
 }
 
-function splitText( text, splitter ) {
+function splitText( text, splitter, options ) {
     // Note: modifier 'g' here will trigger a bug
     // var reg = new RegExp( escapeRegExp( splitter ), 'ig' );
     var reg = new RegExp( escapeRegExp( splitter ), 'i' );
@@ -461,7 +511,7 @@ function splitText( text, splitter ) {
 function doSearch( text, options ) {
     var opt = options || {};
     var $root = $( document.body );
-    var searchResult;
+    var searchResult, isSelector = false;
     var hasMatched = false;
 
     // console.log( 'doSearch: ' + text );
@@ -469,7 +519,10 @@ function doSearch( text, options ) {
     opt.highlightExcludes = opt.highlightExcludes || [
         '.content-search'
         , '.content-search-info'
-        , styleClasses.hide
+        , '.content-search-info__current'
+        , '.content-search-info__total'
+        , '.content-search-info__splitter'
+        , '.' + styleClasses.hide
         , /style|script|iframe|input|textarea|svg|canvas/i
     ];
 
@@ -477,20 +530,27 @@ function doSearch( text, options ) {
         '#navbar-auto'
         , '.content-search'
         , '.content-search-info'
-        , styleClasses.hide
+        , '.' + styleClasses.hide
         , /style|script|iframe|h[1-7]/i
     ];
 
+    if ( regSelectorPrefix.test( text ) ) {
+        text = RegExp.$1;
+        isSelector = true;
+    } 
+
+    // if empty keyword, stop go further
     if ( ! text.replace( /^\s+|\s+$/, '' ).length ) {
-        searchResult = false;
+        return false;
     }
-    else if ( regSelectorPrefix.test( text ) ) {
-        console.log( 'do selector search' );
-        // searchResult = doSelectorSearch();
-        searchResult = false;
+
+    // do search
+    if ( isSelector ) {
+        console.log( 'do selector search: ' + text );
+        searchResult = doSelectorSearch( text, opt );
     } 
     else {
-        console.log( 'do content search' );
+        console.log( 'do content search: ' + text );
         searchResult = doContentSearch( text, opt );
     }
 
@@ -503,6 +563,52 @@ function doSearch( text, options ) {
     }
 
     return searchResult;
+}
+
+function doSelectorSearch( selector, options ) {
+    var opt = options;
+    var $root = $( document.body );
+    var $results = $( selector, $root[ 0 ] )
+        .filter( function( index ) {
+            if ( matchSelectors( this, opt.highlightExcludes ) ) {
+                return false;
+            }
+            return true;
+        } )
+        ;
+
+    if ( ! $results.length ) {
+        return false;
+    }
+
+    // highlight
+    $results.addClass( styleClasses.elementHilight );
+
+    // hide
+    preDepthTravel( $root[ 0 ], {
+        visit: function( node ) {
+            if ( matchSelectors( node, opt.hideExcludes ) 
+                // #text nodes ignored
+                || node.nodeType == 3 ) {
+                return STOP_TRAVEL;
+            }
+
+            var $node = $( node );
+            var className = styleClasses.elementHilight;
+            if ( ! $node.find( '.' + className ).length 
+                && ! $node.hasClass( className )
+                ) {
+                $node.addClass( styleClasses.hide );
+                return STOP_TRAVEL;
+            }
+            else if ( $node.hasClass( className ) ) {
+                return STOP_TRAVEL;
+            }
+            return 0;
+        }
+    } );
+    
+    return true;
 }
 
 function doContentSearch( text, options ) {
@@ -521,7 +627,7 @@ function doContentSearch( text, options ) {
             if ( node.nodeType == 3 ) { 
                 var rawText = node.nodeValue;
 
-                var splitResult = splitText( rawText, text );
+                var splitResult = splitText( rawText, text, opt );
                 var textArr = splitResult.textArr;
                 // the original keywords
                 var keysArr = splitResult.keysArr;
@@ -536,7 +642,7 @@ function doContentSearch( text, options ) {
                             var spanNode = document.createElement( 'span' );
                             var innerTextNode = document.createTextNode( keysArr[ i ] );
                             spanNode.appendChild( innerTextNode );
-                            spanNode.className = styleClasses.hilight;
+                            spanNode.className = styleClasses.textHilight;
                             newNodes.push( spanNode );
                         }
                     }
@@ -555,7 +661,6 @@ function doContentSearch( text, options ) {
 
     // if no matched, we don't need to hide no-matched elements
     if ( ! hasMatched ) {
-        // $( '#content-search-info' ).animateCss( 'hinge' );
         return false;
     }
 
@@ -568,7 +673,7 @@ function doContentSearch( text, options ) {
             }
 
             var $node = $( node );
-            var className = styleClasses.hilight;
+            var className = styleClasses.textHilight;
             if ( ! $node.find( '.' + className ).length 
                 && ! $node.hasClass( className )
                 ) {
@@ -590,9 +695,6 @@ function doContentSearch( text, options ) {
             return 0;
         }
     } );
-
-    // currentResultIndex = 0;
-    // gotoSearchResult();
 
     return true;
 }
@@ -617,14 +719,15 @@ function scrollByPage( options ) {
 }
 
 function clearHighlight() {
-    $( '.' + styleClasses.hilight )
-        .removeClass( styleClasses.hilight )
+    $( '.' + styleClasses.textHilight )
+        .removeClass( styleClasses.textHilight )
         ;
 }
 
 function gotoSearchResult( options ) {
     var opt = options || {};
-    var $results = $( '.' + styleClasses.hilight )
+    var $results = $( '.' + styleClasses.textHilight )
+        .add( '.' + styleClasses.elementHilight )
         // we only care the visible results
         .filter( function( index ) {
             return $( this ).is( ':visible' );
@@ -695,7 +798,7 @@ function restore( options ) {
     preDepthTravel( $root[ 0 ], {
         visit: function( node ) {
             if ( node.tagName && node.tagName.toLowerCase() == 'span'
-                && node.className.split( /\s+/ ).indexOf( styleClasses.hilight ) >= 0 
+                && node.className.split( /\s+/ ).indexOf( styleClasses.textHilight ) >= 0 
                 ) {
                 var t1 = node.childNodes[ 0 ];
                 var t2 = node.previousSibling;
@@ -712,6 +815,18 @@ function restore( options ) {
 
                 // we discard 2 nodes
                 return -1;
+            }
+            else if ( 'string' == typeof node.className ) {
+                var arr = node.className.split( /\s+/ ), classIndex;
+                if ( ( classIndex = arr.indexOf( styleClasses.elementHilight ) ) >= 0 ) {
+                    arr.splice( classIndex, 1 );
+                    if ( ! arr.length ) {
+                        node.removeAttribute( 'class' );
+                    }
+                    else {
+                        node.setAttribute( 'class', arr.join( ' ' ) );
+                    }
+                }
             }
             return 0;
         }

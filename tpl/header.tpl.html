@@ -31,6 +31,17 @@ ol ul{margin-left: 22px;}
 .markdown-body ol {
     padding-left: 0;
 }
+.markdown-body ol ol,
+.markdown-body ul ol {
+    list-style-type: decimal;
+}
+
+.markdown-body ul ul ol,
+.markdown-body ul ol ol,
+.markdown-body ol ul ol,
+.markdown-body ol ol ol {
+    list-style-type: decimal;
+}
 
 @media print {
 

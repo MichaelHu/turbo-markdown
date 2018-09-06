@@ -28,7 +28,7 @@ http://258i.com/docs/markdown_res/js/jquery-1.9.1.min.js
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style type="text/css" media="all">
- 
+
 img {max-width: 100%; cursor: pointer; }
 pre, code {color: #048ebd; }
 li>p {display: block;}
@@ -54,6 +54,7 @@ ol ul{margin-left: 22px;}
 .markdown-body ul ol {
     list-style-type: decimal;
 }
+
 .markdown-body ul ul ol,
 .markdown-body ul ol ol,
 .markdown-body ol ul ol,
@@ -66,12 +67,17 @@ ol ul{margin-left: 22px;}
     div#navbar-auto {
         width: auto ! important;
         position: static ! important;
-        padding-right: 5px ! important;
+        padding-right: 3px ! important;
         box-shadow: none ! important;
         -webkit-box-shadow: none ! important;
         overflow: scroll ! important;
         background-color: #fff ! important;
         border-right: none ! important; 
+    }
+
+    div#navbar-auto::-webkit-scrollbar {
+        width: 0;
+        height: 0;
     }
 
     .markdown-body {
@@ -134,12 +140,22 @@ ol ul{margin-left: 22px;}
     top: 0px;
     left: 0px;
     bottom: 0px;
-    padding-right: 5px;
-    box-shadow: 2px 0 3px #bbb;
-    -webkit-box-shadow: 2px 0 3px #bbb;
+    padding-right: 3px;
     overflow: scroll;
     background-color: #fff;
-    border-right: 2px solid #eee; 
+}
+
+#navbar-auto::-webkit-scrollbar {
+    width: 2px;
+    height: 0;
+}
+
+#navbar-auto::-webkit-scrollbar-track {
+    background-color: #f5f5f5;
+}
+
+#navbar-auto::-webkit-scrollbar-thumb {
+    background-color: rgba( 0, 0, 0, 0.2 );
 }
 
 #navbar-auto ul{

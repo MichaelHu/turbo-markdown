@@ -709,6 +709,10 @@ ol ul{margin-left: 22px;}
     padding: 0 50px;
     overflow: auto;
     font-size: 14px;
+    color: #000;
+
+    /* 解决高版本Chrome下深色小字体的发虚发白的问题 */
+    -webkit-font-smoothing: antialiased;
 }
 
 .markdown-body ul,
@@ -725,6 +729,23 @@ ol ul{margin-left: 22px;}
 .markdown-body ol ul ol,
 .markdown-body ol ol ol {
     list-style-type: decimal;
+}
+
+.markdown-body code {
+    font-size: 96%;
+}
+
+.markdown-body pre code {
+    /**
+     * 1. Courier（而非Courier-New）字体为首选，在safari和chrome下都能使用，表现一致
+     * 2. Consolas字体，在chrome下不能使用
+     * 3. monospace字体，作为最终等宽字体
+     */
+    font-family: Courier, Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+.markdown-body pre>code {
+    font-size: 112%;
 }
 
 @media print {

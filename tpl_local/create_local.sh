@@ -10,6 +10,7 @@ files=(
     http://258i.com/docs/markdown_res/js/lazyload.min.js
     http://258i.com/docs/markdown_res/js/augment.js
     http://258i.com/static/bower_components/dom-text-search/build/dts_full.js
+    http://258i.com/static/build/clipboard.js/clipboard.min.js
 )
 
 pushd ./assets
@@ -38,6 +39,7 @@ cat tpl-footer.tpl.html \
     | sed -e '/^\/\* --replace lazyload.min.js/r assets/lazyload.min.js' \
     | sed -e '/^\/\* --replace augment.js/r assets/augment.js' \
     | sed -e '/^\/\* --replace dts_full.js/r assets/dts_full.js' \
+    | sed -e '/^\/\* --replace clipboard.min.js/r assets/clipboard.min.js' \
     > footer.tpl.html \
     2>/dev/null
 

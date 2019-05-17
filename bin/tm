@@ -19,7 +19,7 @@ var scriptPath = path.resolve(
     rootDir
     , './markdown-' 
         + platform 
-        + ( 'win32' == platform ? '.bat' : '.sh' )
+        + ( 'win' == platform ? '.bat' : '.sh' )
 );
 var cmdPath = path.resolve( rootDir, platform, 'markdown' );
 var childArgs = [];

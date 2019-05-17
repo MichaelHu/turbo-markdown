@@ -8,7 +8,6 @@ var args = process.argv;
 var platform = process.platform;
 var thisDir = __dirname;
 var rootDir = path.resolve( thisDir, '../' );
-var scriptPath = path.resolve( rootDir, './markdown-mac.sh' );
 var platform = os.platform();
 platform = platform == 'darwin' 
     ? 'mac' 
@@ -16,6 +15,12 @@ platform = platform == 'darwin'
         ? 'win'
         : 'unix'
     ;
+var scriptPath = path.resolve( 
+    rootDir
+    , './markdown-' 
+        + platform 
+        + ( 'win32' == platform ? '.bat' : '.sh' )
+);
 var cmdPath = path.resolve( rootDir, platform, 'markdown' );
 var childArgs = [];
 var confFilePath = path.resolve( rootDir, 'package.json' );

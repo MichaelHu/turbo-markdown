@@ -1,6 +1,6 @@
 {
   "name": "turbo-markdown",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "An enhanced markdown parser",
   "main": "index.js",
   "scripts": {

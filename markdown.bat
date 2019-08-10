@@ -8,7 +8,10 @@ set MARKDOWNCMD=%MARKDOWN_TURBO_CMD%
 set TPL=tpl
 set ISPREVIEW=1
 
-if "%2" == "local" set TPL=tpl_local
+if "%2" == "--local" set TPL=tpl_local
+if "%3" == "--local" set TPL=tpl_local
+if "%2" == "--no-preview" set ISPREVIEW=0
+if "%3" == "--no-preview" set ISPREVIEW=0
 
 type "%1" "%ROOT%\file_empty_line" > "%TMPFILE%"
 
@@ -16,7 +19,9 @@ type "%1" "%ROOT%\file_empty_line" > "%TMPFILE%"
 type "%ROOT%\!TPL!\header.tpl.html" "%ROOT%\tmp\__tmp__.md.html" "%ROOT%\!TPL!\footer.tpl.html" > "%PREVIEWFILE%" 
 
 rem must no double-quotes
-start %PREVIEWFILE%
+if "!ISPREVIEW!" == "1" (
+    start %PREVIEWFILE%
+)
 
 del "%TMPFILE%"
 

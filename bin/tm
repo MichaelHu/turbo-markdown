@@ -55,6 +55,14 @@ if ( args.length < 3
 }
 childArgs = childArgs.concat( args.slice( 2 ) ); 
 
+/**
+ * normalize directory separator
+ * 1. under windows: weekly/manage/report.md -> weekly\manage\report.md
+ */
+if ( 'win' == platform ) {
+    childArgs[ 0 ] = childArgs[ 0 ].replace( /\//g, '\\' );
+}
+
 var filePath = childArgs[ 0 ]; 
 
 if ( !fs.existsSync( filePath ) ) {

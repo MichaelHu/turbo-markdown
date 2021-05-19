@@ -12,7 +12,7 @@
 * **全文搜索**功能，支持`文本、正则、selector`等搜索类型
 * 支持`vim-like`操作：`gg, G, j, k, h, l, ctrl-d, ctrl-u`等
 * 通过引入`fly.js`脚本，便捷`编写和运行`示例代码，支持`es6, es7, react`等`js语法`，以及`html语法`的示例代码，也可以自行扩展
-* 一个由**turbo-markdown**生成的在线文档的例子：<http://258i.com/docs/markdown/turbo-markdown.md.html>
+* 一个由**turbo-markdown**生成的在线文档的例子：<http://123.56.89.145/docs/markdown/turbo-markdown.md.html>
 
 
 ## 安装

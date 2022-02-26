@@ -49,7 +49,9 @@ if ( args.length < 3
         'Usage: '
         , '    tm <-V | --version>' 
         , '    tm <-H | --help>'
+        , '    tm <file>'
         , '    tm <file> [--local] [--no-preview]'
+        , '    tm <file> [--site] [--no-preview]'
     ].join( '\n' ) );
     return;
 }

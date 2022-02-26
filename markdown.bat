@@ -10,6 +10,8 @@ set ISPREVIEW=1
 
 if "%2" == "--local" set TPL=tpl_local
 if "%3" == "--local" set TPL=tpl_local
+if "%2" == "--site" set TPL=tpl_site
+if "%3" == "--site" set TPL=tpl_site
 if "%2" == "--no-preview" set ISPREVIEW=0
 if "%3" == "--no-preview" set ISPREVIEW=0
 

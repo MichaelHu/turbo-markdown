@@ -12,6 +12,10 @@ if [ "$2" == "--local" -o "$3" == "--local" ]; then
     TPL=tpl_local
 fi
 
+if [ "$2" == "--site" -o "$3" == "--site" ]; then
+    TPL=tpl_site
+fi
+
 if [ "$2" == "--no-preview" -o "$3" == "--no-preview" ]; then
     ISPREVIEW=0
 fi

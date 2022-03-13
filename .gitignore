@@ -3,3 +3,5 @@
 *.preview.html
 *.log
 package-lock.json
+tpl/header.tpl.html
+tpl/footer.tpl.html

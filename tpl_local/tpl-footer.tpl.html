@@ -3,6 +3,7 @@
 <script type="text/javascript">
 
 /*
+http://123.56.89.145/static/bower_components/snippets/js/mp/fly.js
 http://123.56.89.145/docs/markdown_res/bootstrap/js/bootstrap.min.js
 http://123.56.89.145/static/bower_components/bootstrap-table/dist/bootstrap-table.min.js
 http://123.56.89.145/static/build/clipboard.js/clipboard.min.js
@@ -12,6 +13,7 @@ http://123.56.89.145/docs/markdown_res/js/augment.js
 http://123.56.89.145/static/bower_components/dom-text-search/build/dts_full.js
 */
 
+/* --replace fly.js */
 /* --replace bootstrap.min.js */
 /* --replace bootstrap-table.min.js */
 /* --replace clipboard.min.js */
@@ -22,12 +24,58 @@ http://123.56.89.145/static/bower_components/dom-text-search/build/dts_full.js
 
 ( function() {
 
-document.title = $('h1').html() || '无标题文档';
-$( '.lazy' ).lazyload( {
+document.title = $('h1').text() || '无标题文档';
+$('.lazy').lazyload({
     data_attribute: 'url'
     // , effect : "fadeIn"
-} );
+});
 
-} )();
+
+
+
+
+function switchToOpenNavState(){
+    $('#markdown-toggle-nav').removeClass('close-it').addClass('open-it');
+}
+
+function switchToCloseNavState(){
+    $('#markdown-toggle-nav').removeClass('open-it').addClass('close-it');
+}
+
+function openNav(){
+    $('.markdown-body').removeClass('no-nav');
+}
+
+function closeNav(){
+    $('.markdown-body').addClass('no-nav');
+}
+
+function setNavBtnState(){
+    if( $('.markdown-body').hasClass('no-nav') ){
+        switchToOpenNavState();
+    }
+    else {
+        switchToCloseNavState();
+    }
+}
+
+// initialize
+setNavBtnState();
+
+$('#markdown-toggle-nav').on(
+    'click'
+    ,function(){
+        if( $('.markdown-body').hasClass('no-nav') ){
+            openNav();
+            setNavBtnState();
+        }
+        else {
+            closeNav();
+            setNavBtnState();
+        }
+    }
+);
+
+})();
 </script>
 

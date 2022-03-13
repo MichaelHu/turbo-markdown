@@ -1,0 +1,30 @@
+#! /usr/bin/env node 
+
+var path = require( 'path' );
+var fs = require( 'fs' );
+var os = require( 'os' );
+var execFileSync = require( 'child_process' ).execFileSync;
+var args = process.argv;
+var platform = process.platform;
+var thisDir = __dirname;
+var rootDir = path.resolve( thisDir, '../' );
+
+var confFilePath = path.resolve( rootDir, 'package.json' );
+var conf = fs.readFileSync( confFilePath, { encoding: 'utf-8' } );
+
+conf = JSON.parse( conf );
+
+var resDir = path.resolve( rootDir, 'local_res' );
+var tplDir = path.resolve( rootDir, 'tpl' );
+var headerTplSrcFilePath = path.resolve( tplDir, 'header-src.tpl.html' );
+var footerTplSrcFilePath = path.resolve( tplDir, 'footer-src.tpl.html' );
+var headerTplFilePath = path.resolve( tplDir, 'header.tpl.html' );
+var footerTplFilePath = path.resolve( tplDir, 'footer.tpl.html' );
+
+var content = fs.readFileSync( headerTplSrcFilePath, { encoding: 'utf-8' } );
+content = content.replace( /@__tm_local_res__@/g, resDir );
+fs.writeFileSync( headerTplFilePath, content, { encoding: 'utf-8', flag: 'w' } );
+
+content = fs.readFileSync( footerTplSrcFilePath, { encoding: 'utf-8' } );
+content = content.replace( /@__tm_local_res__@/g, resDir );
+fs.writeFileSync( footerTplFilePath, content, { encoding: 'utf-8', flag: 'w' } );

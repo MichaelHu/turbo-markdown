@@ -1,0 +1,26 @@
+{
+  "name": "dom-text-search",
+  "description": "A text search tool in dom environment, also support searching with regular expression or selector.",
+  "main": "build/dts_full.js",
+  "authors": [
+    "MichaelHu"
+  ],
+  "license": "ISC",
+  "keywords": [
+    "text-search",
+    "regular",
+    "expression",
+    "selector",
+    "dom",
+    "html",
+    "web"
+  ],
+  "homepage": "https://github.com/MichaelHu/dom-text-search",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

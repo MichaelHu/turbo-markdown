@@ -1,0 +1,26 @@
+{
+  "name": "flowchart",
+  "version": "1.11.3",
+  "main": "./release/flowchart.min.js",
+  "dependencies": {},
+  "ignore": [
+    "src/",
+    "buildtasks/",
+    "example/",
+    ".gitignore",
+    "Gruntfile.js",
+    "package.json",
+    "**/*.zip"
+  ],
+  "homepage": "https://github.com/adrai/flowchart.js",
+  "_release": "1.11.3",
+  "_resolution": {
+    "type": "version",
+    "tag": "v1.11.3",
+    "commit": "416b627cbc91a9edf471338d0945398482d901a0"
+  },
+  "_source": "https://github.com/adrai/flowchart.js.git",
+  "_target": "^1.11.3",
+  "_originalSource": "flowchart",
+  "_direct": true
+}

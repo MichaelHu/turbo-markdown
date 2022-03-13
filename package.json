@@ -1,10 +1,11 @@
 {
   "name": "turbo-markdown",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "description": "An enhanced markdown parser",
   "main": "index.js",
   "scripts": {
-    "test": "./bin/tm grammar.md"
+    "test": "./bin/tm grammar.md",
+    "postinstall": "./bin/postinstall"
   },
   "repository": {
     "type": "git",

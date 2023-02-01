@@ -18,8 +18,26 @@ $('.lazy').lazyload({
 });
 
 
+var NAV_STATE = 'NAV_STATE';
 
-
+function setSavedNavState(state){
+    if(state == 1){
+        localStorage.setItem(NAV_STATE, 1);
+    }
+    else{
+        localStorage.setItem(NAV_STATE, 0);
+    }
+}
+    
+function getSavedNavState(){
+    var state = localStorage.getItem(NAV_STATE);
+    if(state == 1){
+        return 1;
+    }
+    else{
+        return 0;
+    }
+}
 
 function switchToOpenNavState(){
     $('#markdown-toggle-nav').removeClass('close-it').addClass('open-it');
@@ -47,6 +65,12 @@ function setNavBtnState(){
 }
 
 // initialize
+if(getSavedNavState() == 1){
+    openNav();
+}
+else{
+    closeNav();
+}
 setNavBtnState();
 
 $('#markdown-toggle-nav').on(
@@ -55,10 +79,12 @@ $('#markdown-toggle-nav').on(
         if( $('.markdown-body').hasClass('no-nav') ){
             openNav();
             setNavBtnState();
+            setSavedNavState(1);
         }
         else {
             closeNav();
             setNavBtnState();
+            setSavedNavState(0);
         }
     }
 );

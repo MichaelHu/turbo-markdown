@@ -32,6 +32,8 @@ var conf = fs.readFileSync( confFilePath, { encoding: 'utf-8' } );
 conf = JSON.parse( conf );
 // console.log( conf );
 
+const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
 if ( args.indexOf( '-V' ) >= 0 
     || args.indexOf( '--version' ) >= 0 ) {
     showDescription();
@@ -88,4 +90,15 @@ console.log( result.toString() );
 
 function showDescription() {
     console.log( 'turbo-markdown ( v' + conf.version + ' )' );
+}
+
+function showHelp() {
+    console.log( [ 
+        'Usage: '
+        , '    tm <-V | --version>' 
+        , '    tm <-H | --help>'
+        , '    tm <file>'
+        , '    tm <file> [--local] [--no-preview]'
+        , '    tm <file> [--site] [--no-preview]'
+    ].join( '\n' ) );
 }
